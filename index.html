@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TEC25</title>
-    <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Tailwind CSS (使用国内镜像加速，解决国内访问白屏问题) -->
+    <script src="https://lib.baomitu.com/tailwindcss/3.4.1/js/cdn.min.js"></script>
+    <script>
+        // 安全回退机制：如果国内镜像加载失败，自动尝试加载官方源
+        if (typeof tailwind === 'undefined') {
+            console.warn('Mirror failed, falling back to official CDN');
+            var script = document.createElement('script');
+            script.src = "https://cdn.tailwindcss.com";
+            document.head.appendChild(script);
+        }
+    </script>
     <!-- 引入极客风格字体 -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
     
