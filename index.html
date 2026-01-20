@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TEC25</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入极客风格字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- 配置并引入 MathJax (用于渲染 LaTeX) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'geek-black': '#050505',
+                        'geek-silver': '#C0C0C0',
+                        'geek-accent': '#FFFFFF',
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 基础样式 */
+        body {
+            background-color: #050505;
+            color: #C0C0C0;
+            font-family: 'Noto Sans SC', sans-serif;
+            overflow-x: hidden; /* 防止水平溢出 */
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮色块 */
+        }
+
+        h1, h2, h3, h4, .geek-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* MathJax 颜色适配 */
+        .mjx-chtml {
+            color: #C0C0C0 !important;
+            outline: none !important;
+        }
+
+        /* 背景 Canvas */
+        #science-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.5;
+            pointer-events: none; /* 确保背景不阻挡点击 */
+        }
+
+        /* 页面切换逻辑 */
+        .page-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-out;
+            transform: translateY(10px);
+            padding-top: 80px;
+            padding-bottom: 80px; /* 移动端底部安全距离 */
+            box-sizing: border-box;
+        }
+
+        .page-section.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            position: relative; /* 激活时恢复流式布局 */
+        }
+
+        /* 首页特殊处理 */
+        #home-section {
+            padding-top: 0;
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: absolute;
+        }
+        
+        #home-section.active { position: absolute; }
+
+        /* 汉堡菜单按钮 */
+        .hamburger-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            cursor: pointer;
+            width: 44px; /* 加大触控区域 */
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-line {
+            width: 24px;
+            height: 2px;
+            background-color: #C0C0C0;
+            transition: all 0.3s ease;
+        }
+
+        .menu-open .hamburger-line:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .menu-open .hamburger-line:nth-child(2) { opacity: 0; }
+        .menu-open .hamburger-line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* 全屏导航遮罩 */
+        #nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 5, 0.98);
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        #nav-overlay.open { opacity: 1; visibility: visible; }
+
+        .nav-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            margin: 1.5rem 0;
+            color: #C0C0C0;
+            text-decoration: none;
+            position: relative;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 10px; /* 增加点击范围 */
+        }
+
+        .nav-link:hover { color: #FFFFFF; }
+        .nav-link:active { transform: scale(0.95); color: #FFF; } /* 移动端触摸反馈 */
+
+        /* 内容容器通用样式 (Glassmorphism) */
+        .content-card {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(192, 192, 192, 0.1);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            display: block;
+            text-decoration: none;
+            cursor: pointer;
+            /* 防止文字在移动端溢出 */
+            word-wrap: break-word; 
+        }
+        
+        /* 桌面端 Hover */
+        @media (hover: hover) {
+            .content-card:hover {
+                border-color: rgba(192, 192, 192, 0.4);
+                transform: translateY(-2px);
+                background: rgba(30, 30, 30, 0.7);
+            }
+        }
+
+        /* 移动端 Active (触摸反馈) */
+        .content-card:active {
+            transform: scale(0.98);
+            background: rgba(40, 40, 40, 0.8);
+            border-color: rgba(192, 192, 192, 0.6);
+        }
+
+        .glitch-title {
+            font-size: 5rem;
+            text-shadow: 0 0 15px rgba(192, 192, 192, 0.7);
+            text-align: center;
+        }
+        
+        /* 移动端适配调整 */
+        @media (max-width: 768px) {
+            .glitch-title { font-size: 3rem; }
+            .nav-link { font-size: 1.5rem; margin: 1rem 0; }
+            .page-section { padding-left: 1rem; padding-right: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 背景层 -->
+    <canvas id="science-canvas"></canvas>
+
+    <!-- 2. 导航层 -->
+    <div class="hamburger-btn" id="menu-toggle">
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+    </div>
+
+    <div id="nav-overlay">
+        <a class="nav-link" onclick="navigateTo('home')">首页 / HOME</a>
+        <a class="nav-link" onclick="navigateTo('tutorials')">辅学站 / TUTORIALS</a>
+        <a class="nav-link" onclick="navigateTo('materials')">学习资料 / RESOURCES</a>
+        <a class="nav-link" onclick="navigateTo('forum')">百言堂 / FORUM</a>
+        <a class="nav-link" onclick="navigateTo('latex-test')">测试 / TEST (LaTeX)</a>
+    </div>
+
+    <!-- 3. 内容层 -->
+    
+    <!-- 首页 SECTION -->
+    <section id="home-section" class="page-section active">
+        <h1 class="glitch-title">TEC25</h1>
+        <div class="text-xl md:text-2xl mt-4 font-light tracking-wide font-mono text-center px-4">
+            <span id="typing-text"></span><span class="cursor animate-pulse">|</span>
+        </div>
+        <div class="absolute bottom-10 text-xs text-gray-500 font-mono w-full text-center px-4">
+            <span>SCROLL OR USE MENU TO NAVIGATE</span>
+        </div>
+    </section>
+
+    <!-- 辅学站 SECTION (Level 2) -->
+    <section id="tutorials-section" class="page-section">
+        <div class="container mx-auto px-2 md:px-6 max-w-5xl">
+            <header class="mb-8 md:mb-12 border-b border-gray-800 pb-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">辅学站</h2>
+                <p class="text-geek-silver font-mono text-xs md:text-sm">AUXILIARY LEARNING STATION</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <!-- 测试跳转卡片 1 -->
+                <a onclick="navigateTo('course-detail-1')" class="content-card p-6">
+                    <div class="text-2xl mb-4 text-white">∫dx</div>
+                    <h3 class="text-xl font-bold text-white mb-2">高等数学</h3>
+                    <p class="text-sm text-gray-400 mb-4">点击此处测试跳转至三级详情页面。</p>
+                    <span class="text-xs text-geek-silver font-mono flex items-center">
+                         ENTER DETAILS <span class="ml-2 text-lg">→</span>
+                    </span>
+                </a>
+                
+                <!-- 预留卡位 2 -->
+                <a class="content-card p-6" href="javascript:void(0)">
+                    <div class="text-2xl mb-4">[图标/符号]</div>
+                    <h3 class="text-xl font-bold text-white mb-2">[课程标题]</h3>
+                    <p class="text-sm text-gray-400 mb-4">[在此输入课程简介或描述...]</p>
+                </a>
+                
+                <!-- 预留卡位 3 -->
+                <a class="content-card p-6" href="javascript:void(0)">
+                    <div class="text-2xl mb-4">[图标/符号]</div>
+                    <h3 class="text-xl font-bold text-white mb-2">[课程标题]</h3>
+                    <p class="text-sm text-gray-400 mb-4">[在此输入课程简介或描述...]</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 学习资料 SECTION (Level 2) -->
+    <section id="materials-section" class="page-section">
+        <div class="container mx-auto px-2 md:px-6 max-w-4xl">
+            <header class="mb-8 md:mb-12 border-b border-gray-800 pb-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">学习资料</h2>
+                <p class="text-geek-silver font-mono text-xs md:text-sm">LEARNING RESOURCES_DATABASE</p>
+            </header>
+
+            <div class="space-y-4">
+                <!-- 测试跳转资源 1 -->
+                <a onclick="navigateTo('resource-detail-1')" class="content-card p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl">📄</span>
+                        <div class="overflow-hidden">
+                            <h4 class="text-white font-bold truncate">2025_复习大纲.pdf</h4>
+                            <p class="text-xs text-gray-500 font-mono">CLICK TO VIEW DETAILS</p>
+                        </div>
+                    </div>
+                    <div class="text-geek-silver">→</div>
+                </a>
+
+                <!-- 预留资源位 2 -->
+                <a class="content-card p-4 flex items-center justify-between" href="javascript:void(0)">
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl">📦</span>
+                        <div class="overflow-hidden">
+                            <h4 class="text-white font-bold truncate">[资料文件名]</h4>
+                            <p class="text-xs text-gray-500 font-mono">SIZE: --MB</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 预留资源位 3 -->
+                <a class="content-card p-4 flex items-center justify-between" href="javascript:void(0)">
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl">🔗</span>
+                        <div class="overflow-hidden">
+                            <h4 class="text-white font-bold truncate">[外部链接标题]</h4>
+                            <p class="text-xs text-gray-500 font-mono">LINK</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 百言堂 SECTION (Level 2) -->
+    <section id="forum-section" class="page-section">
+        <div class="container mx-auto px-2 md:px-6 max-w-5xl">
+            <header class="mb-8 md:mb-12 border-b border-gray-800 pb-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">百言堂</h2>
+                <p class="text-geek-silver font-mono text-xs md:text-sm">YOUR WORDS</p>
+            </header>
+
+            <div class="columns-1 md:columns-2 gap-6 space-y-6">
+                <!-- 预留帖子位 1 -->
+                <a class="content-card p-6 break-inside-avoid" href="javascript:void(0)">
+                    <p class="text-gray-300 italic mb-4">"[在此输入引言或帖子内容...]"</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 font-mono">
+                        <span>@USER</span>
+                        <span>#TAG</span>
+                    </div>
+                </a>
+
+                <!-- 预留帖子位 2 -->
+                <a class="content-card p-6 break-inside-avoid" href="javascript:void(0)">
+                    <h4 class="text-white font-bold mb-2">[帖子标题]</h4>
+                    <p class="text-gray-400 text-sm mb-4">[在此输入详细内容...]</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 font-mono">
+                        <span>@USER</span>
+                        <span>TIME_AGO</span>
+                    </div>
+                </a>
+
+                 <!-- 预留帖子位 3 -->
+                 <a class="content-card p-6 break-inside-avoid" href="javascript:void(0)">
+                    <p class="text-gray-300 italic mb-4">"[在此输入引言或帖子内容...]"</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 font-mono">
+                        <span>@USER</span>
+                        <span>#TAG</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 测试页面 SECTION (Level 2, LaTeX 测试) -->
+    <section id="latex-test-section" class="page-section">
+        <div class="container mx-auto px-2 md:px-6 max-w-4xl">
+            <header class="mb-8 md:mb-12 border-b border-gray-800 pb-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">系统测试</h2>
+                <p class="text-geek-silver font-mono text-xs md:text-sm">SYSTEM DIAGNOSTICS: LATEX_RENDER</p>
+            </header>
+
+            <div class="space-y-6">
+                <!-- 测试项 1 -->
+                <div class="content-card p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">1. 基础公式渲染</h3>
+                    <p class="text-gray-400 mb-2">行内公式测试：我们知道 $E = mc^2$ 是最著名的公式。</p>
+                </div>
+
+                <!-- 测试项 2 (移动端滚动优化) -->
+                <div class="content-card p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">2. 复杂块级公式 (可横向滚动)</h3>
+                    <p class="text-gray-400 mb-4">高斯积分：</p>
+                    <div class="text-white text-lg overflow-x-auto pb-2">
+                        $$ \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi} $$
+                    </div>
+                    <p class="text-gray-400 my-4">麦克斯韦方程组（微分形式）：</p>
+                    <div class="text-white text-lg overflow-x-auto pb-2">
+                        $$
+                        \begin{aligned}
+                        \nabla \cdot \mathbf{E} &= \frac{\rho}{\varepsilon_0} \\
+                        \nabla \cdot \mathbf{B} &= 0 \\
+                        \nabla \times \mathbf{E} &= -\frac{\partial \mathbf{B}}{\partial t} \\
+                        \nabla \times \mathbf{B} &= \mu_0\mathbf{J} + \mu_0\varepsilon_0\frac{\partial \mathbf{E}}{\partial t}
+                        \end{aligned}
+                        $$
+                    </div>
+                </div>
+
+                <!-- 测试项 3 -->
+                <div class="content-card p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">3. 矩阵运算</h3>
+                    <div class="text-white overflow-x-auto">
+                        $$
+                        A = \begin{pmatrix}
+                        \alpha & \beta \\
+                        \gamma & \delta
+                        \end{pmatrix}
+                        $$
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 三级页面 1: 课程详情 (Level 3) -->
+    <section id="course-detail-1-section" class="page-section">
+        <div class="container mx-auto px-4 md:px-6 max-w-4xl">
+            <!-- 顶部导航条 -->
+            <div class="flex items-center text-geek-silver mb-8 cursor-pointer hover:text-white py-2" onclick="navigateTo('tutorials')">
+                <span class="mr-2 text-xl">&lt;</span>
+                <span class="font-mono text-sm">BACK TO TUTORIALS</span>
+            </div>
+
+            <div class="content-card p-6 md:p-8 border-t-4 border-green-500">
+                <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">高等数学：微积分导论</h1>
+                <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 mb-6">
+                    <span class="bg-gray-800 px-2 py-1 rounded">LECTURER: DR. AI</span>
+                    <span class="bg-gray-800 px-2 py-1 rounded">DURATION: 45 MINS</span>
+                </div>
+                
+                <div class="prose prose-invert max-w-none text-gray-300 text-sm md:text-base">
+                    <p class="mb-4">
+                        本课程将带你深入理解微积分的基本概念。我们将从极限的概念开始，逐步推导导数的定义。
+                    </p>
+                    <p class="mb-4">
+                        核心公式回顾：
+                        <div class="overflow-x-auto text-white">
+                        $$ f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} $$
+                        </div>
+                    </p>
+                    <h4 class="text-white font-bold mt-6 mb-2">课程大纲</h4>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>极限与连续性</li>
+                        <li>导数的几何意义</li>
+                        <li>微分法则</li>
+                        <li>定积分与不定积分</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-700 flex justify-end">
+                    <button class="w-full md:w-auto bg-white text-black px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-200 transition active:scale-95 rounded">START LEARNING</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 三级页面 2: 资源详情 (Level 3) -->
+    <section id="resource-detail-1-section" class="page-section">
+        <div class="container mx-auto px-4 md:px-6 max-w-4xl">
+             <!-- 顶部导航条 -->
+             <div class="flex items-center text-geek-silver mb-8 cursor-pointer hover:text-white py-2" onclick="navigateTo('materials')">
+                <span class="mr-2 text-xl">&lt;</span>
+                <span class="font-mono text-sm">BACK TO RESOURCES</span>
+            </div>
+
+            <div class="content-card p-6 md:p-8">
+                <div class="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+                    <div class="text-5xl self-center md:self-start">📄</div>
+                    <div class="flex-1 w-full">
+                        <h2 class="text-xl md:text-2xl font-bold text-white break-all">2025期末复习大纲.pdf</h2>
+                        <p class="text-sm text-gray-400 font-mono mt-1">UPLOADED BY: ADMIN | 2.4MB</p>
+                        
+                        <div class="mt-6 space-y-2 text-sm text-gray-300">
+                            <p>此文件包含了本学期所有核心科目的考点整理。</p>
+                            <p>包含内容：</p>
+                            <ul class="list-disc pl-5 text-gray-400">
+                                <li>高等数学重点公式表</li>
+                                <li>大学物理实验数据处理规范</li>
+                                <li>C++ 指针与内存管理摘要</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-8 flex flex-col md:flex-row gap-4">
+                            <button class="w-full md:w-auto bg-white text-black px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-200 transition active:scale-95 rounded">DOWNLOAD NOW</button>
+                            <button class="w-full md:w-auto border border-gray-600 text-white px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-800 transition active:scale-95 rounded">PREVIEW</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        // --- 1. 导航与页面切换逻辑 ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const navOverlay = document.getElementById('nav-overlay');
+        
+        const sections = {
+            'home': document.getElementById('home-section'),
+            'tutorials': document.getElementById('tutorials-section'),
+            'materials': document.getElementById('materials-section'),
+            'forum': document.getElementById('forum-section'),
+            'latex-test': document.getElementById('latex-test-section'),
+            'course-detail-1': document.getElementById('course-detail-1-section'),
+            'resource-detail-1': document.getElementById('resource-detail-1-section')
+        };
+        
+        let isMenuOpen = false;
+
+        menuToggle.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                navOverlay.classList.add('open');
+                document.body.classList.add('menu-open');
+            } else {
+                navOverlay.classList.remove('open');
+                document.body.classList.remove('menu-open');
+            }
+        });
+
+        function navigateTo(pageId) {
+            isMenuOpen = false;
+            navOverlay.classList.remove('open');
+            document.body.classList.remove('menu-open');
+
+            // 隐藏所有板块
+            for (const key in sections) {
+                if(sections[key]) sections[key].classList.remove('active');
+            }
+
+            // 延时显示目标板块
+            setTimeout(() => {
+                if (sections[pageId]) {
+                    sections[pageId].classList.add('active');
+                    // 滚动到顶部 (兼容移动端)
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // 重新渲染 LaTeX
+                    if (window.MathJax) {
+                        window.MathJax.typesetPromise();
+                    }
+                }
+            }, 300);
+        }
+
+        // --- 2. 漂浮科学符号特效 ---
+        const canvas = document.getElementById('science-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        const symbols = ["∑", "∫", "∂", "√", "∞", "π", "∆", "E=mc²", "F=ma", "λ", "ω", "H₂O", "CO₂", "⚛", "🧪", "⚗", "🔬", "🔭", "🧬"];
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initParticles();
+        }
+
+        class Particle {
+            constructor() { this.reset(true); }
+            reset(initial = false) {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.floor(Math.random() * 14) + 10;
+                this.text = symbols[Math.floor(Math.random() * symbols.length)];
+                this.opacity = Math.random() * 0.5 + 0.1;
+                // 确保不在初始化时生成在屏幕外太远
+                if (!initial) {
+                    if (Math.random() > 0.5) this.x = Math.random() > 0.5 ? -20 : width + 20;
+                    else this.y = Math.random() > 0.5 ? -20 : height + 20;
+                }
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < -50 || this.x > width + 50 || this.y < -50 || this.y > height + 50) this.reset();
+            }
+            draw() {
+                ctx.font = `${this.size}px 'JetBrains Mono'`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillText(this.text, this.x, this.y);
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            // 减少移动端粒子数量以节省性能
+            const density = width < 768 ? 15000 : 10000;
+            const count = Math.floor((width * height) / density);
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animate();
+
+        // --- 3. 打字机效果 ---
+        const textToType = "欢迎构建我们的网站";
+        const typingElement = document.getElementById('typing-text');
+        let charIndex = 0;
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                typingElement.innerHTML += textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 150);
+            }
+        }
+        setTimeout(typeWriter, 800);
+
+    </script>
+</body>
+</html>
