@@ -220,6 +220,22 @@
             text-align: center;
         }
         
+        /* 滚动条美化 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
         /* 移动端适配调整 */
         @media (max-width: 768px) {
             .glitch-title { font-size: 3rem; }
@@ -256,6 +272,42 @@
         <div class="text-xl md:text-2xl mt-4 font-light tracking-wide font-mono text-center px-4">
             <span id="typing-text"></span><span class="cursor animate-pulse">|</span>
         </div>
+        
+        <!-- 新增：公告板 (尺寸已调整变大) -->
+        <div class="mt-8 mx-4 w-full max-w-2xl content-card !cursor-default" style="max-height: 400px; display: flex; flex-direction: column;">
+            <div class="px-4 py-3 border-b border-gray-700 bg-black/20 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-geek-accent font-mono text-sm font-bold">公告板 / BULLETIN</h3>
+                <span class="text-xs text-gray-500 font-mono">LIVE UPDATES</span>
+            </div>
+            <div class="px-4 py-2 overflow-y-auto custom-scrollbar" style="height: 280px;">
+                <!-- 公告列表 -->
+                <div class="py-3 border-b border-gray-800 last:border-0">
+                    <div class="flex items-baseline justify-between mb-1">
+                        <span class="text-xs text-green-400 font-mono">[置顶] 欢迎新同学</span>
+                        <span class="text-[10px] text-gray-600">01-23</span>
+                    </div>
+                    <p class="text-sm text-gray-300 leading-relaxed">欢迎来到TEC25，请查看辅学站获取最新课程。</p>
+                </div>
+                
+                <!-- 示例：如何换行 -->
+                <div class="py-3 border-b border-gray-800 last:border-0">
+                    <div class="flex items-baseline justify-between mb-1">
+                        <span class="text-xs text-blue-400 font-mono">[教学] 如何换行</span>
+                        <span class="text-[10px] text-gray-600">Now</span>
+                    </div>
+                    <p class="text-sm text-gray-300 leading-relaxed">
+                        这是第一行文字。<br>
+                        使用 &lt;br&gt; 标签可以强制换行。<br><br>
+                        如果连用两个，就能像这样空出一行。
+                    </p>
+                </div>
+
+                
+
+
+            </div>
+        </div>
+
         <div class="absolute bottom-10 text-xs text-gray-500 font-mono w-full text-center px-4">
             <span>SCROLL OR USE MENU TO NAVIGATE</span>
         </div>
@@ -270,28 +322,25 @@
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                <!-- 测试跳转卡片 1 -->
+                <!-- 测试跳转卡片 1 - 已修改：移除了Test功能按钮和小字 -->
                 <a onclick="navigateTo('course-detail-1')" class="content-card p-6">
                     <div class="text-2xl mb-4 text-white">∫dx</div>
-                    <h3 class="text-xl font-bold text-white mb-2">高等数学</h3>
-                    <p class="text-sm text-gray-400 mb-4">点击此处测试跳转至三级详情页面。</p>
-                    <span class="text-xs text-geek-silver font-mono flex items-center">
-                         ENTER DETAILS <span class="ml-2 text-lg">→</span>
-                    </span>
+                    <h3 class="text-xl font-bold text-white mb-2">测试课程</h3>
+                    <p class="text-sm text-gray-400 mb-4">本课程主要讲解微积分基础概念与应用。</p>
                 </a>
                 
-                <!-- 预留卡位 2 -->
+                <!-- 卡位 2 - 已修改为测试文本 -->
                 <a class="content-card p-6" href="javascript:void(0)">
                     <div class="text-2xl mb-4">[图标/符号]</div>
-                    <h3 class="text-xl font-bold text-white mb-2">[课程标题]</h3>
-                    <p class="text-sm text-gray-400 mb-4">[在此输入课程简介或描述...]</p>
+                    <h3 class="text-xl font-bold text-white mb-2">测试项目 B</h3>
+                    <p class="text-sm text-gray-400 mb-4">这是一个测试用的课程简介文本，用于展示布局效果。</p>
                 </a>
                 
-                <!-- 预留卡位 3 -->
+                <!-- 卡位 3 - 已修改为测试文本 -->
                 <a class="content-card p-6" href="javascript:void(0)">
                     <div class="text-2xl mb-4">[图标/符号]</div>
-                    <h3 class="text-xl font-bold text-white mb-2">[课程标题]</h3>
-                    <p class="text-sm text-gray-400 mb-4">[在此输入课程简介或描述...]</p>
+                    <h3 class="text-xl font-bold text-white mb-2">测试项目 C</h3>
+                    <p class="text-sm text-gray-400 mb-4">更多测试内容正在加载中...</p>
                 </a>
             </div>
         </div>
@@ -306,36 +355,36 @@
             </header>
 
             <div class="space-y-4">
-                <!-- 测试跳转资源 1 -->
+                <!-- 测试跳转资源 1 - 已修改为测试文本 -->
                 <a onclick="navigateTo('resource-detail-1')" class="content-card p-4 flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <span class="text-2xl">📄</span>
                         <div class="overflow-hidden">
-                            <h4 class="text-white font-bold truncate">2025_复习大纲.pdf</h4>
-                            <p class="text-xs text-gray-500 font-mono">CLICK TO VIEW DETAILS</p>
+                            <h4 class="text-white font-bold truncate">测试文档_v1.0.pdf</h4>
+                            <p class="text-xs text-gray-500 font-mono">CLICK TO VIEW TEST DETAILS</p>
                         </div>
                     </div>
                     <div class="text-geek-silver">→</div>
                 </a>
 
-                <!-- 预留资源位 2 -->
+                <!-- 资源位 2 - 已修改为测试文本 -->
                 <a class="content-card p-4 flex items-center justify-between" href="javascript:void(0)">
                     <div class="flex items-center gap-4">
                         <span class="text-2xl">📦</span>
                         <div class="overflow-hidden">
-                            <h4 class="text-white font-bold truncate">[资料文件名]</h4>
-                            <p class="text-xs text-gray-500 font-mono">SIZE: --MB</p>
+                            <h4 class="text-white font-bold truncate">测试资料包.zip</h4>
+                            <p class="text-xs text-gray-500 font-mono">SIZE: 1024MB</p>
                         </div>
                     </div>
                 </a>
 
-                <!-- 预留资源位 3 -->
+                <!-- 资源位 3 - 已修改为测试文本 -->
                 <a class="content-card p-4 flex items-center justify-between" href="javascript:void(0)">
                     <div class="flex items-center gap-4">
                         <span class="text-2xl">🔗</span>
                         <div class="overflow-hidden">
-                            <h4 class="text-white font-bold truncate">[外部链接标题]</h4>
-                            <p class="text-xs text-gray-500 font-mono">LINK</p>
+                            <h4 class="text-white font-bold truncate">外部测试链接</h4>
+                            <p class="text-xs text-gray-500 font-mono">LINK: EXAMPLE.COM</p>
                         </div>
                     </div>
                 </a>
@@ -444,33 +493,28 @@
             </div>
 
             <div class="content-card p-6 md:p-8 border-t-4 border-green-500">
-                <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">高等数学：微积分导论</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">测试课程详情</h1>
                 <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 mb-6">
-                    <span class="bg-gray-800 px-2 py-1 rounded">LECTURER: DR. AI</span>
-                    <span class="bg-gray-800 px-2 py-1 rounded">DURATION: 45 MINS</span>
+                    <span class="bg-gray-800 px-2 py-1 rounded">LECTURER: TEST_AI</span>
+                    <span class="bg-gray-800 px-2 py-1 rounded">DURATION: -- MINS</span>
                 </div>
                 
                 <div class="prose prose-invert max-w-none text-gray-300 text-sm md:text-base">
                     <p class="mb-4">
-                        本课程将带你深入理解微积分的基本概念。我们将从极限的概念开始，逐步推导导数的定义。
+                        这是课程详情的测试文本。此处将显示详细的课程介绍。
                     </p>
                     <p class="mb-4">
-                        核心公式回顾：
+                        测试公式展示：
                         <div class="overflow-x-auto text-white">
-                        $$ f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} $$
+                        $$ f(x) = \text{Test} $$
                         </div>
                     </p>
-                    <h4 class="text-white font-bold mt-6 mb-2">课程大纲</h4>
+                    <h4 class="text-white font-bold mt-6 mb-2">测试大纲</h4>
                     <ul class="list-disc pl-5 space-y-2">
-                        <li>极限与连续性</li>
-                        <li>导数的几何意义</li>
-                        <li>微分法则</li>
-                        <li>定积分与不定积分</li>
+                        <li>测试章节 1</li>
+                        <li>测试章节 2</li>
+                        <li>测试章节 3</li>
                     </ul>
-                </div>
-                
-                <div class="mt-8 pt-6 border-t border-gray-700 flex justify-end">
-                    <button class="w-full md:w-auto bg-white text-black px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-200 transition active:scale-95 rounded">START LEARNING</button>
                 </div>
             </div>
         </div>
@@ -489,22 +533,22 @@
                 <div class="flex flex-col md:flex-row items-start gap-4 md:gap-6">
                     <div class="text-5xl self-center md:self-start">📄</div>
                     <div class="flex-1 w-full">
-                        <h2 class="text-xl md:text-2xl font-bold text-white break-all">2025期末复习大纲.pdf</h2>
-                        <p class="text-sm text-gray-400 font-mono mt-1">UPLOADED BY: ADMIN | 2.4MB</p>
+                        <h2 class="text-xl md:text-2xl font-bold text-white break-all">测试文档_v1.0.pdf</h2>
+                        <p class="text-sm text-gray-400 font-mono mt-1">UPLOADED BY: TEST_ADMIN | 10MB</p>
                         
                         <div class="mt-6 space-y-2 text-sm text-gray-300">
-                            <p>此文件包含了本学期所有核心科目的考点整理。</p>
+                            <p>这是资源详情的测试文本。</p>
                             <p>包含内容：</p>
                             <ul class="list-disc pl-5 text-gray-400">
-                                <li>高等数学重点公式表</li>
-                                <li>大学物理实验数据处理规范</li>
-                                <li>C++ 指针与内存管理摘要</li>
+                                <li>测试内容条目 A</li>
+                                <li>测试内容条目 B</li>
+                                <li>测试内容条目 C</li>
                             </ul>
                         </div>
 
                         <div class="mt-8 flex flex-col md:flex-row gap-4">
-                            <button class="w-full md:w-auto bg-white text-black px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-200 transition active:scale-95 rounded">DOWNLOAD NOW</button>
-                            <button class="w-full md:w-auto border border-gray-600 text-white px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-800 transition active:scale-95 rounded">PREVIEW</button>
+                            <button class="w-full md:w-auto bg-white text-black px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-200 transition active:scale-95 rounded">DOWNLOAD TEST</button>
+                            <button class="w-full md:w-auto border border-gray-600 text-white px-6 py-3 md:py-2 font-bold font-mono text-sm hover:bg-gray-800 transition active:scale-95 rounded">PREVIEW TEST</button>
                         </div>
                     </div>
                 </div>
