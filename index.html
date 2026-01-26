@@ -328,8 +328,6 @@
         </div>
 
                 
-
-
             </div>
         </div>
 
@@ -347,11 +345,25 @@
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                <!-- 测试跳转卡片 1 - 已修改：移除了Test功能按钮和小字 -->
-                <a onclick="navigateTo('course-detail-1')" class="content-card p-6">
-                    <div class="text-2xl mb-4 text-white">∫dx</div>
-                    <h3 class="text-xl font-bold text-white mb-2">测试课程</h3>
-                    <p class="text-sm text-gray-400 mb-4">本课程主要讲解微积分基础概念与应用。</p>
+                <!-- 课程预告卡片 - 已修改内容 -->
+                <a onclick="navigateTo('course-detail-1')" class="content-card p-6 h-full flex flex-col">
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-3">课程预告-用集合视角看穿高中数学</h3>
+                    
+                    <div class="text-sm text-gray-400 leading-relaxed space-y-4 flex-1">
+                        <p>
+                            集合为什么要放在高中第一章来迷惑我呢？！我真的以为高中数学不过如此直到一个f带着（）来了
+                        </p>
+                        
+                        <p>
+                            本课将用可视化工具展现集合是怎么将数与形联系起来并贯通高中数学的<br>
+                            给高中数学抽象一个理由
+                        </p>
+                        
+                        <p>
+                            开课时间2026.1.30 14:00-15:30 b站-苯仁在探索<br>
+                            <span class="text-xs text-gray-500 mt-1 block">没招了，领导不让建钉钉群</span>
+                        </p>
+                    </div>
                 </a>
                 
                 <!-- 卡位 2 - 已修改为测试文本 -->
@@ -518,28 +530,25 @@
             </div>
 
             <div class="content-card p-6 md:p-8 border-t-4 border-green-500">
-                <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">测试课程详情</h1>
-                <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 mb-6">
-                    <span class="bg-gray-800 px-2 py-1 rounded">LECTURER: TEST_AI</span>
-                    <span class="bg-gray-800 px-2 py-1 rounded">DURATION: -- MINS</span>
-                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">课程预告-用集合视角看穿高中数学</h1>
                 
-                <div class="prose prose-invert max-w-none text-gray-300 text-sm md:text-base">
-                    <p class="mb-4">
-                        这是课程详情的测试文本。此处将显示详细的课程介绍。
+                <div class="prose prose-invert max-w-none text-gray-300 text-sm md:text-base leading-relaxed space-y-6">
+                    <p>
+                        集合为什么要放在高中第一章来迷惑我呢？！<br>
+                        我真的以为高中数学不过如此直到一个f带着（）来了
                     </p>
-                    <p class="mb-4">
-                        测试公式展示：
-                        <div class="overflow-x-auto text-white">
-                        $$ f(x) = \text{Test} $$
-                        </div>
+                    
+                    <p>
+                        本课将用可视化工具展现集合是怎么将数与形联系起来并贯通高中数学的。<br>
+                        给高中数学抽象一个理由。
                     </p>
-                    <h4 class="text-white font-bold mt-6 mb-2">测试大纲</h4>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>测试章节 1</li>
-                        <li>测试章节 2</li>
-                        <li>测试章节 3</li>
-                    </ul>
+
+                    <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <p class="font-bold text-white mb-2">📅 开课信息</p>
+                        <p>时间：2026.1.30 14:00-15:30</p>
+                        <p>地点：b站-苯仁在探索</p>
+                        <p class="text-xs text-gray-500 mt-2 italic">注：没招了，领导不让建钉钉群</p>
+                    </div>
                 </div>
             </div>
         </div>
